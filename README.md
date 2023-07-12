@@ -8,7 +8,7 @@ kburns-slideshow allows the creation of video slideshows from images with kburns
 ## Prerequisites
 
 kburns-slideshow is a python application and needs Python 3 installed.
-The videos are generated with [FFmpeg](https://ffmpeg.org/) which is needed in Version 3 or 4. 
+The videos are generated with [FFmpeg](https://ffmpeg.org/) which is needed in Version 3 or 4.
 FFprobe (comes with FFmpeg) is used to extract the duration, width and height of input videos.
 
 To sync the slide changes to the background music the music onsets are extracted with [aubio](https://aubio.org/).
@@ -23,9 +23,9 @@ The executables for FFmpeg, FFprobe and aubioonset, which are used, can be set i
 ```
 pip install -r requirements.txt
 ```
-* download aubio 
+* download aubio
   * when there should be only support for `wav` files
-    * download and extract [aubio 0.4.6](https://aubio.org/download) for windows ([win64](https://aubio.org/bin/0.4.6/aubio-0.4.6-win64.zip)/[win32](https://aubio.org/bin/0.4.6/aubio-0.4.6-win32.zip)) 
+    * download and extract [aubio 0.4.6](https://aubio.org/download) for windows ([win64](https://aubio.org/bin/0.4.6/aubio-0.4.6-win64.zip)/[win32](https://aubio.org/bin/0.4.6/aubio-0.4.6-win32.zip))
   * when there should be a support for various audio files
     * download [aubio 0.4.6 with ffmpeg](https://aubio.org/download) for windows ([win64](https://aubio.org/bin/0.4.6/aubio-0.4.6-win64-ffmpeg.zip)/[win32](https://aubio.org/bin/0.4.6/aubio-0.4.6-win32-ffmpeg.zip)) and the corresponding FFmpeg 3.3.3 shared build([win64](https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-3.3.3-win64-shared.zip)/[win32](https://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.3.3-win32-shared.zip))
     * extract aubio and extract the ffmpeg shared dlls from the `bin` folder of ffmpeg to the `bin` folder of aubio
@@ -65,7 +65,7 @@ pip install -r requirements.txt
 
 ### Create Executable
 
-* install Python3 (like above) 
+* install Python3 (like above)
 * install Python modules
 ```
 pip install -r requirements.txt
@@ -91,7 +91,7 @@ $ python3 kbvs-cli.py
 ```
 
 ### Graphical User Interace
-Additionally there is a graphical user interface which allows to create a new slideshow or load a saved slideshow file. 
+Additionally there is a graphical user interface which allows to create a new slideshow or load a saved slideshow file.
 The documentation can be found at [/docs/gui.md](/docs/gui.md).
 
 The gui can be used by calling `kbvs.py`.
@@ -103,11 +103,11 @@ When you have python2 and python3 installed, you may need to run the application
 $ python3 kbvs.py
 ```
 
-## Notices 
-When using the overlay text you need to be aware of the font specific settings. 
+## Notices
+When using the overlay text you need to be aware of the font specific settings.
 
 On Windows FFmpeg 3 is build with `--enable-libfontconfig` but unfortunately the default font directory is not recognized.
-You either need to create a custom `fonts.conf`, which is described [here](https://ffmpeg.zeranoe.com/forum/viewtopic.php?f=7&t=2554#p8531) 
+You either need to create a custom `fonts.conf`, which is described [here](https://ffmpeg.zeranoe.com/forum/viewtopic.php?f=7&t=2554#p8531)
 or you can use the path to the font with the parameter `font_file`.
 
 With FFmpeg 4 the default font directory is recognized and the parameter `font` can be used. The font file is then automatically found with the help of fontconfig.
@@ -135,7 +135,7 @@ The `get()` function has the following parameters:
 The function needs to return the filter and the number of frames of the transition.
 
 #### ffmpeg-video-slideshow-scripts transitions
-I have integrated all video transitions of [ffmpeg-video-slideshow-scripts](https://github.com/tanersener/ffmpeg-video-slideshow-scripts). 
+I have integrated all video transitions of [ffmpeg-video-slideshow-scripts](https://github.com/tanersener/ffmpeg-video-slideshow-scripts).
 
 You can get the transitions by buying me a coffee from <a href="https://bmc.xyz/l/kburnstransit" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>.
 

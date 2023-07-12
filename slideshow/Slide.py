@@ -1,15 +1,25 @@
 #!/usr/bin/env python3
 
+import os
 import pkgutil
 import random
-import os
 
 
 class Slide:
-
-    def __init__(self, ffmpeg_version, file, output_width, output_height, duration,
-                 fade_duration=1, fps=60, title=None, overlay_text=None, overlay_color=None,
-                 transition="random"):
+    def __init__(
+        self,
+        ffmpeg_version,
+        file,
+        output_width,
+        output_height,
+        duration,
+        fade_duration=1,
+        fps=60,
+        title=None,
+        overlay_text=None,
+        overlay_color=None,
+        transition="random",
+    ):
         self.ffmpeg_version = ffmpeg_version
         self.file = file
         self.has_audio = False
@@ -27,7 +37,9 @@ class Slide:
         if transition == "random":
             self.transition = random.choice(self.getTransitions())
         else:
-            self.transition = transition if transition in self.getTransitions() else None
+            self.transition = (
+                transition if transition in self.getTransitions() else None
+            )
 
         self.splits = []
         self.tempfile = None
@@ -44,7 +56,9 @@ class Slide:
         # for each frame (in one second) calculate the expected duration (i/fps)
         # if this value has more than 2 decimal places (*100 has no decimal places (is_integer))
         # it is a possible frame for a duration with less than 2 decimal places
-        possibleFrames = [i for i in range(self.fps) if float(i / self.fps * 100).is_integer()]
+        possibleFrames = [
+            i for i in range(self.fps) if float(i / self.fps * 100).is_integer()
+        ]
 
         total_frames = round(duration * self.fps)
         total_frames_seconds = int(duration) * self.fps
@@ -68,9 +82,7 @@ class Slide:
         return
 
     def getObject(self, config):
-        object = {
-            "file": self.file
-        }
+        object = {"file": self.file}
 
         if self.getDuration() != config["slide_duration"]:
             object["slide_duration"] = self.getDuration()
@@ -93,4 +105,9 @@ class Slide:
         return object
 
     def getTransitions(self):
-        return [package_name for importer, package_name, _ in pkgutil.iter_modules([os.path.join(os.getcwd(), "transitions")])]
+        return [
+            package_name
+            for importer, package_name, _ in pkgutil.iter_modules(
+                [os.path.join(os.getcwd(), "transitions")]
+            )
+        ]

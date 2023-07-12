@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
-import os
 import logging
+import os
 import subprocess
 
 logger = logging.getLogger("kburns-slideshow")
 
 
 class Queue:
-
     def __init__(self, tempFileFolder, tempFilePrefix):
         self.tempFileFolder = tempFileFolder
         self.tempFilePrefix = tempFilePrefix
@@ -37,7 +36,7 @@ class Queue:
         return len(self.queue)
 
     def getFileName(self, item, extension="mp4"):
-        return "%s%s.%s" % (self.tempFilePrefix, item["suffix"], extension)
+        return "{}{}.{}".format(self.tempFilePrefix, item["suffix"], extension)
 
     def getOutputName(self, item, extension="mp4"):
         return os.path.join(self.tempFileFolder, self.getFileName(item, extension))
@@ -50,30 +49,44 @@ class Queue:
             filters = item["filters"]
 
         temp_filter_script = self.getOutputName(item, "txt")
-        with open('%s' % (temp_filter_script), 'w') as file:
+        with open("%s" % (temp_filter_script), "w") as file:
             file.write("%s [out]" % (filters))
 
         cmd = [
-            ffmpeg, "-y", "-hide_banner", "-stats", "-v", "warning",
-            " ".join(["-i \"%s\" " % (i) for i in item["inputs"]]),
-            "-filter_complex_script \"%s\"" % (temp_filter_script),
+            ffmpeg,
+            "-y",
+            "-hide_banner",
+            "-stats",
+            "-v",
+            "warning",
+            " ".join(['-i "%s" ' % (i) for i in item["inputs"]]),
+            '-filter_complex_script "%s"' % (temp_filter_script),
             # "-crf", "0" ,
             "-map [out]",
-            "-preset", "ultrafast",
-            "-tune", "stillimage",
-            "-c:v", "libx264",
-            self.getOutputName(item)
+            "-preset",
+            "ultrafast",
+            "-tune",
+            "stillimage",
+            "-c:v",
+            "libx264",
+            self.getOutputName(item),
         ]
 
         # re-use existing temp file
         if not os.path.exists(self.getOutputName(item)):
-            logger.debug("Create temporary video %s for file %s",
-                         self.getOutputName(item), ",".join(item["inputs"]))
+            logger.debug(
+                "Create temporary video %s for file %s",
+                self.getOutputName(item),
+                ",".join(item["inputs"]),
+            )
             # logger.debug("Command: %s", " ".join(cmd))
             subprocess.call(" ".join(cmd), shell=True)
         else:
-            logger.debug("Using existing temporary video %s for file %s",
-                         self.getOutputName(item), ",".join(item["inputs"]))
+            logger.debug(
+                "Using existing temporary video %s for file %s",
+                self.getOutputName(item),
+                ",".join(item["inputs"]),
+            )
 
         if os.path.exists(self.getOutputName(item)):
             self.tempFiles.append(self.getFileName(item))

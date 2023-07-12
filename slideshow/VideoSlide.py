@@ -1,34 +1,105 @@
 #!/usr/bin/env python3
 
-from .Slide import Slide
 import subprocess
+
+from .Slide import Slide
 
 
 class VideoSlide(Slide):
-
-    def __init__(self, ffmpeg_version, file, ffprobe, output_width, output_height,
-                 fade_duration=1, title=None, fps=60, overlay_text=None, overlay_color=None,
-                 transition="random", force_no_audio=False, video_start=None, video_end=None):
-        duration = self.subprocess_call(["%s" % (ffprobe), "-show_entries", "format=duration",
-                                         "-v", "error", "-of", "default=noprint_wrappers=1:nokey=1", file])
+    def __init__(
+        self,
+        ffmpeg_version,
+        file,
+        ffprobe,
+        output_width,
+        output_height,
+        fade_duration=1,
+        title=None,
+        fps=60,
+        overlay_text=None,
+        overlay_color=None,
+        transition="random",
+        force_no_audio=False,
+        video_start=None,
+        video_end=None,
+    ):
+        duration = self.subprocess_call(
+            [
+                "%s" % (ffprobe),
+                "-show_entries",
+                "format=duration",
+                "-v",
+                "error",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                file,
+            ]
+        )
         duration = float(duration)
 
         self.video_duration = duration
 
-        super().__init__(ffmpeg_version, file, output_width, output_height,
-                         duration, fade_duration, fps, title, overlay_text, overlay_color, transition)
+        super().__init__(
+            ffmpeg_version,
+            file,
+            output_width,
+            output_height,
+            duration,
+            fade_duration,
+            fps,
+            title,
+            overlay_text,
+            overlay_color,
+            transition,
+        )
 
-        audio = self.subprocess_call(["%s" % (ffprobe), "-select_streams", "a", "-show_entries",
-                                      "stream=codec_type", "-v", "error", "-of", "default=noprint_wrappers=1:nokey=1", file])
+        audio = self.subprocess_call(
+            [
+                "%s" % (ffprobe),
+                "-select_streams",
+                "a",
+                "-show_entries",
+                "stream=codec_type",
+                "-v",
+                "error",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                file,
+            ]
+        )
         self.video_has_audio = "audio" in str(audio)
         self.has_audio = self.video_has_audio
 
-        width = self.subprocess_call(["%s" % (ffprobe), "-select_streams", "v", "-show_entries",
-                                      "stream=width", "-v", "error", "-of", "default=noprint_wrappers=1:nokey=1", file])
+        width = self.subprocess_call(
+            [
+                "%s" % (ffprobe),
+                "-select_streams",
+                "v",
+                "-show_entries",
+                "stream=width",
+                "-v",
+                "error",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                file,
+            ]
+        )
         self.width = int(width)
 
-        height = self.subprocess_call(["%s" % (ffprobe), "-select_streams", "v", "-show_entries",
-                                       "stream=height", "-v", "error", "-of", "default=noprint_wrappers=1:nokey=1", file])
+        height = self.subprocess_call(
+            [
+                "%s" % (ffprobe),
+                "-select_streams",
+                "v",
+                "-show_entries",
+                "stream=height",
+                "-v",
+                "error",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                file,
+            ]
+        )
         self.height = int(height)
 
         self.ratio = self.width / self.height
@@ -37,7 +108,9 @@ class VideoSlide(Slide):
 
         self.is_trimmed = False
         self.start = video_start if video_start is not None else None
-        self.end = video_end if video_end is not None and video_end < self.duration else None
+        self.end = (
+            video_end if video_end is not None and video_end < self.duration else None
+        )
         self.calculateDurationAfterTrimming()
 
     def calculateDurationAfterTrimming(self):
@@ -66,9 +139,13 @@ class VideoSlide(Slide):
             width, height = [-1, self.output_height]
 
         filters = []
-        filters.append("scale=w=%s:h=%s" % (width, height))
+        filters.append(f"scale=w={width}:h={height}")
         filters.append("fps=%s" % (self.fps))
-        filters.append("pad=%s:%s:(ow-iw)/2:(oh-ih)/2" % (self.output_width, self.output_height))
+        filters.append(
+            "pad={}:{}:(ow-iw)/2:(oh-ih)/2".format(
+                self.output_width, self.output_height
+            )
+        )
 
         if self.is_trimmed:
             trim = []
@@ -108,7 +185,9 @@ class VideoSlide(Slide):
 
     def subprocess_call(self, command=[]):
         si = None
-        if hasattr(subprocess, 'STARTUPINFO'):
+        if hasattr(subprocess, "STARTUPINFO"):
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        return subprocess.check_output(command, stderr=subprocess.PIPE, stdin=subprocess.PIPE, startupinfo=si).decode()
+        return subprocess.check_output(
+            command, stderr=subprocess.PIPE, stdin=subprocess.PIPE, startupinfo=si
+        ).decode()

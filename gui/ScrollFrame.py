@@ -1,7 +1,7 @@
 # https://stackoverflow.com/a/49681192
 
-import tkinter as tk
 import logging
+import tkinter as tk
 
 logger = logging.getLogger("kburns-slideshow")
 
@@ -31,13 +31,15 @@ class ScrollFrame(tk.Frame):
     def addFrame(self, frame, anchor=tk.NW):
         self.frame = frame
         # create canvas window for the frame
-        self.canvas_frame = self.canvas.create_window((0, 0), window=frame, anchor=anchor)
+        self.canvas_frame = self.canvas.create_window(
+            (0, 0), window=frame, anchor=anchor
+        )
 
         # update idletasks so that bounding box info is available
         frame.update_idletasks()
 
         # update scrollregion to match frame content
-        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def getCanvas(self):
         return self.canvas
@@ -46,4 +48,4 @@ class ScrollFrame(tk.Frame):
         return self.frame
 
     def clear(self):
-        self.canvas.delete('all')
+        self.canvas.delete("all")

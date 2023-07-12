@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 
-import subprocess
-import os
-import json
-import sys
-import logging
-import re
-import importlib
 import copy
+import importlib
+import json
+import logging
+import os
+import re
+import subprocess
+import sys
 
-from .ImageSlide import ImageSlide
-from .VideoSlide import VideoSlide
 from .AudioFile import AudioFile
+from .ImageSlide import ImageSlide
 from .Queue import Queue
+from .VideoSlide import VideoSlide
 
 logger = logging.getLogger("kburns-slideshow")
 
@@ -27,11 +27,17 @@ class SlideManager:
         self.background_tracks = []
         self.config = config
 
-        self.tempFileFolder = config["temp_file_folder"] if "temp_file_folder" in config else "temp"
+        self.tempFileFolder = (
+            config["temp_file_folder"] if "temp_file_folder" in config else "temp"
+        )
         if not os.path.isabs(self.tempFileFolder):
             self.tempFileFolder = os.path.join(os.getcwd(), self.tempFileFolder)
 
-        self.tempFilePrefix = config["temp_file_prefix"] if "temp_file_prefix" in config else "temp-kburns-"
+        self.tempFilePrefix = (
+            config["temp_file_prefix"]
+            if "temp_file_prefix" in config
+            else "temp-kburns-"
+        )
         self.tempFileFullPrefix = os.path.join(self.tempFileFolder, self.tempFilePrefix)
         self.queue = Queue(self.tempFileFolder, self.tempFilePrefix)
 
@@ -45,20 +51,28 @@ class SlideManager:
             # when run from Pyinstaller with the ``--noconsole`` option. Avoid this
             # distraction.
             si = None
-            if hasattr(subprocess, 'STARTUPINFO'):
+            if hasattr(subprocess, "STARTUPINFO"):
                 si = subprocess.STARTUPINFO()
                 si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            ffmpeg_version_extract = subprocess.check_output(["%s" % (config["ffmpeg"]), "-version"],
-                                                             stderr=subprocess.PIPE,
-                                                             stdin=subprocess.PIPE,
-                                                             startupinfo=si).decode()
-            m = re.search('^ffmpeg version (([0-9])[0-9.]*)', ffmpeg_version_extract)
+            ffmpeg_version_extract = subprocess.check_output(
+                ["%s" % (config["ffmpeg"]), "-version"],
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                startupinfo=si,
+            ).decode()
+            m = re.search("^ffmpeg version (([0-9])[0-9.]*)", ffmpeg_version_extract)
             self.ffmpeg_version = int(m.group(2)) if m else 4
         except Exception as e:
             raise Exception("FFmpeg not found", config["ffmpeg"], str(e))
 
-        self.config["is_synced_to_audio"] = config["is_synced_to_audio"] if "is_synced_to_audio" in config else False
-        self.config["sync_titles_to_slides"] = config["sync_titles_to_slides"] if "sync_titles_to_slides" in config else False
+        self.config["is_synced_to_audio"] = (
+            config["is_synced_to_audio"] if "is_synced_to_audio" in config else False
+        )
+        self.config["sync_titles_to_slides"] = (
+            config["sync_titles_to_slides"]
+            if "sync_titles_to_slides" in config
+            else False
+        )
         logger.debug("Init SlideManager")
         for file in input_files:
             if not type(file) is dict and os.path.isdir(file):
@@ -117,7 +131,11 @@ class SlideManager:
 
             # If random is selected prevent same z-direction for following slides
             if zoom_direction_z == "random":
-                last_slide = self.getImageSlides()[-1] if len(self.getImageSlides()) > 0 else None
+                last_slide = (
+                    self.getImageSlides()[-1]
+                    if len(self.getImageSlides()) > 0
+                    else None
+                )
                 if last_slide is not None:
                     if last_slide.getZoomDirectionZ() == "in":
                         zoom_direction_z = "out"
@@ -163,15 +181,47 @@ class SlideManager:
 
             extension = filename.split(".")[-1]
 
-            if extension.lower() in [e.lower() for e in self.config["VIDEO_EXTENSIONS"]]:
-                slide = VideoSlide(self.ffmpeg_version, filename, self.config["ffprobe"], output_width, output_height,
-                                   fade_duration, title, fps, overlay_text, overlay_color, transition, force_no_audio,
-                                   video_start, video_end)
-            if extension.lower() in [e.lower() for e in self.config["IMAGE_EXTENSIONS"]]:
-                slide = ImageSlide(self.ffmpeg_version, filename, output_width, output_height, slide_duration,
-                                   slide_duration_min, fade_duration, zoom_direction_x, zoom_direction_y, zoom_direction_z,
-                                   scale_mode, zoom_rate, fps,
-                                   title, overlay_text, overlay_color, transition)
+            if extension.lower() in [
+                e.lower() for e in self.config["VIDEO_EXTENSIONS"]
+            ]:
+                slide = VideoSlide(
+                    self.ffmpeg_version,
+                    filename,
+                    self.config["ffprobe"],
+                    output_width,
+                    output_height,
+                    fade_duration,
+                    title,
+                    fps,
+                    overlay_text,
+                    overlay_color,
+                    transition,
+                    force_no_audio,
+                    video_start,
+                    video_end,
+                )
+            if extension.lower() in [
+                e.lower() for e in self.config["IMAGE_EXTENSIONS"]
+            ]:
+                slide = ImageSlide(
+                    self.ffmpeg_version,
+                    filename,
+                    output_width,
+                    output_height,
+                    slide_duration,
+                    slide_duration_min,
+                    fade_duration,
+                    zoom_direction_x,
+                    zoom_direction_y,
+                    zoom_direction_z,
+                    scale_mode,
+                    zoom_rate,
+                    fps,
+                    title,
+                    overlay_text,
+                    overlay_color,
+                    transition,
+                )
 
         if slide is not None:
             if position is not None:
@@ -223,8 +273,16 @@ class SlideManager:
     # - fade-out duration (begin of transition)
     # + transition offset of previous transition (the duration which the transition is longer than the fade-duration)
     def getOffset(self, idx, frames=True):
-        offset = sum([(slide.getFrames() - self.getSlideFadeOutDuration(i) + self.getTransitionOffset(i))
-                      for i, slide in enumerate(self.getSlides()[:idx])])
+        offset = sum(
+            [
+                (
+                    slide.getFrames()
+                    - self.getSlideFadeOutDuration(i)
+                    + self.getTransitionOffset(i)
+                )
+                for i, slide in enumerate(self.getSlides()[:idx])
+            ]
+        )
         return offset if frames else round(offset / self.config["fps"], 5)
 
     def getSlideFadeOutDuration(self, idx, frames=True):
@@ -244,7 +302,11 @@ class SlideManager:
         # is current slide long enough to have a fade-in and fade-out?
         if self.isSlideDurationGreaterThanFadeDuration(idx, 2):
             slide = self.getSlides()[idx]
-            return slide.fade_duration * self.config["fps"] if frames else slide.fade_duration
+            return (
+                slide.fade_duration * self.config["fps"]
+                if frames
+                else slide.fade_duration
+            )
 
         return 0
 
@@ -281,8 +343,12 @@ class SlideManager:
         if fade_duration > 0:
             # Load transition
             try:
-                transition = importlib.import_module('transitions.%s' % (self.getSlideTransition(i)))
-                filter, duration = transition.get(end, start, trans, i, fade_duration, self.config)
+                transition = importlib.import_module(
+                    "transitions.%s" % (self.getSlideTransition(i))
+                )
+                filter, duration = transition.get(
+                    end, start, trans, i, fade_duration, self.config
+                )
                 return filter, duration
             except ModuleNotFoundError:
                 return None, 0
@@ -338,65 +404,138 @@ class SlideManager:
                 filters = []
 
             # Overlay Text (e.g. Intro)
-            if slide.overlay_color is not None and "duration" in slide.overlay_color and "color" in slide.overlay_color:
-                color_duration = slide.overlay_color["duration"] if "duration" in slide.overlay_color else 0
-                color_offset = slide.overlay_color["offset"] if "offset" in slide.overlay_color else 0
-                color = slide.overlay_color["color"] if "color" in slide.overlay_color else "black"
-                opacity = slide.overlay_color["opacity"] if "opacity" in slide.overlay_color else 0.8
+            if (
+                slide.overlay_color is not None
+                and "duration" in slide.overlay_color
+                and "color" in slide.overlay_color
+            ):
+                color_duration = (
+                    slide.overlay_color["duration"]
+                    if "duration" in slide.overlay_color
+                    else 0
+                )
+                color_offset = (
+                    slide.overlay_color["offset"]
+                    if "offset" in slide.overlay_color
+                    else 0
+                )
+                color = (
+                    slide.overlay_color["color"]
+                    if "color" in slide.overlay_color
+                    else "black"
+                )
+                opacity = (
+                    slide.overlay_color["opacity"]
+                    if "opacity" in slide.overlay_color
+                    else 0.8
+                )
 
                 # on FFmpeg 4 the maximum thickness was changed from 'max' to 'fill'
                 # see https://git.ffmpeg.org/gitweb/ffmpeg.git/commit/b3cb9bd43fa33a8aaf7a63e43f8418975b3bf0de
                 fill_mode = "max" if self.ffmpeg_version < 4 else "fill"
-                filters.append("drawbox=w=iw:h=ih:color=%s@%s:t=%s:enable='between(t,%s,%s)'"
-                               % (color, opacity, fill_mode, color_offset, color_offset + color_duration))
+                filters.append(
+                    "drawbox=w=iw:h=ih:color=%s@%s:t=%s:enable='between(t,%s,%s)'"
+                    % (
+                        color,
+                        opacity,
+                        fill_mode,
+                        color_offset,
+                        color_offset + color_duration,
+                    )
+                )
 
-            if slide.overlay_text is not None and "duration" in slide.overlay_text and "title" in slide.overlay_text:
-                text_duration = slide.overlay_text["duration"] if "duration" in slide.overlay_text else 0
-                text_offset = slide.overlay_text["offset"] if "offset" in slide.overlay_text else 0
-                font = ":font='%s'" % (slide.overlay_text["font"]) if "font" in slide.overlay_text else ""
-                font_file = ":fontfile='%s'" \
-                            % (slide.overlay_text["font_file"]) if "font_file" in slide.overlay_text else ""
-                font_size = slide.overlay_text["font_size"] if "font_size" in slide.overlay_text else 150
-                font_color = slide.overlay_text["color"] if "color" in slide.overlay_text else "white"
-                transition_x = slide.overlay_text["transition_x"] if "transition_x" in slide.overlay_text else "center"
-                transition_y = slide.overlay_text["transition_y"] if "transition_y" in slide.overlay_text else "center"
-                text = slide.overlay_text["title"].replace(':', r'\:')
+            if (
+                slide.overlay_text is not None
+                and "duration" in slide.overlay_text
+                and "title" in slide.overlay_text
+            ):
+                text_duration = (
+                    slide.overlay_text["duration"]
+                    if "duration" in slide.overlay_text
+                    else 0
+                )
+                text_offset = (
+                    slide.overlay_text["offset"]
+                    if "offset" in slide.overlay_text
+                    else 0
+                )
+                font = (
+                    ":font='%s'" % (slide.overlay_text["font"])
+                    if "font" in slide.overlay_text
+                    else ""
+                )
+                font_file = (
+                    ":fontfile='%s'" % (slide.overlay_text["font_file"])
+                    if "font_file" in slide.overlay_text
+                    else ""
+                )
+                font_size = (
+                    slide.overlay_text["font_size"]
+                    if "font_size" in slide.overlay_text
+                    else 150
+                )
+                font_color = (
+                    slide.overlay_text["color"]
+                    if "color" in slide.overlay_text
+                    else "white"
+                )
+                transition_x = (
+                    slide.overlay_text["transition_x"]
+                    if "transition_x" in slide.overlay_text
+                    else "center"
+                )
+                transition_y = (
+                    slide.overlay_text["transition_y"]
+                    if "transition_y" in slide.overlay_text
+                    else "center"
+                )
+                text = slide.overlay_text["title"].replace(":", r"\:")
 
                 # fixed text in the middle
                 if transition_x == "center":
                     x = "(main_w/2-text_w/2)"
                 # scroll from left to right till the middle of the image in half of the duration time
                 elif transition_x == "left-in" or transition_x == "left-to-center":
-                    x = "'if(lte(x,(main_w/2-text_w/2)),(t-%s)*(main_w/2-text_w/2)/(%s/2),(main_w/2-text_w/2))'" \
+                    x = (
+                        "'if(lte(x,(main_w/2-text_w/2)),(t-%s)*(main_w/2-text_w/2)/(%s/2),(main_w/2-text_w/2))'"
                         % (text_offset, text_duration)
+                    )
                 # same but from right to left
                 elif transition_x == "right-in" or transition_x == "right-to-center":
-                    x = "'if(gte(x,(main_w/2-text_w/2)),main_w-(t-%s)*(main_w/2-text_w/2)/(%s/2),(main_w/2-text_w/2))'" \
+                    x = (
+                        "'if(gte(x,(main_w/2-text_w/2)),main_w-(t-%s)*(main_w/2-text_w/2)/(%s/2),(main_w/2-text_w/2))'"
                         % (text_offset, text_duration)
+                    )
 
                 # fixed text in the middle
                 if transition_y == "center":
                     y = "(main_h/2-text_h/2)"
                 # scroll from top to bottom
                 elif transition_y == "top-to-bottom":
-                    y = "'-text_h + ((main_h+text_h)/%s)*(t-%s)'" % (text_duration, text_offset)
+                    y = "'-text_h + ((main_h+text_h)/{})*(t-{})'".format(
+                        text_duration, text_offset
+                    )
                 # same but from bottom to top
                 elif transition_y == "bottom-to-top":
-                    y = "'main_h-(((main_h+text_h)/%s)*(t-%s))'" % (text_duration, text_offset)
+                    y = "'main_h-(((main_h+text_h)/{})*(t-{}))'".format(
+                        text_duration, text_offset
+                    )
 
-                filters.append("drawtext=text='%s':line_spacing=20:fontsize=%s: "
-                               "fontcolor=%s:y=%s:x=%s:borderw=1%s%s:enable='between(t,%s,%s)'"
-                               % (text,
-                                  font_size,
-                                  font_color,
-                                  y,
-                                  x,
-                                  font,
-                                  font_file,
-                                  text_offset,
-                                  text_offset + text_duration
-                                  )
-                               )
+                filters.append(
+                    "drawtext=text='%s':line_spacing=20:fontsize=%s: "
+                    "fontcolor=%s:y=%s:x=%s:borderw=1%s%s:enable='between(t,%s,%s)'"
+                    % (
+                        text,
+                        font_size,
+                        font_color,
+                        y,
+                        x,
+                        font,
+                        font_file,
+                        text_offset,
+                        text_offset + text_duration,
+                    )
+                )
 
                 # if isinstance(slide, ImageSlide):
                 #    slide.slide_duration_min = slide.slide_duration_min + duration
@@ -436,21 +575,36 @@ class SlideManager:
 
                     if step == "start":
                         tempfilters.append(
-                            "trim=start_frame=%s:end_frame=%s,setpts=PTS-STARTPTS" % (0, fade_in_end))
+                            "trim=start_frame={}:end_frame={},setpts=PTS-STARTPTS".format(
+                                0, fade_in_end
+                            )
+                        )
 
                     if step == "main":
                         tempfilters.append(
-                            "trim=start_frame=%s:end_frame=%s,setpts=PTS-STARTPTS" % (fade_in_end, fade_out_start))
+                            "trim=start_frame={}:end_frame={},setpts=PTS-STARTPTS".format(
+                                fade_in_end, fade_out_start
+                            )
+                        )
 
                     if step == "end":
                         tempfilters.append(
-                            "trim=start_frame=%s:end_frame=%s,setpts=PTS-STARTPTS" % (fade_out_start, slide.getFrames()))
+                            "trim=start_frame={}:end_frame={},setpts=PTS-STARTPTS".format(
+                                fade_out_start, slide.getFrames()
+                            )
+                        )
 
-                    file = slide.tempfile if isinstance(slide, ImageSlide) else slide.file
-                    self.queue.addItem([file], tempfilters, "%s_%s" % (i, step))
+                    file = (
+                        slide.tempfile if isinstance(slide, ImageSlide) else slide.file
+                    )
+                    self.queue.addItem([file], tempfilters, f"{i}_{step}")
             else:
                 filters.append("split=%s" % (len(splits)))
-                filter_chains.append("[%s:v]" % (i) + ", ".join(filters) + "".join(["[v%sout-%s]" % (i, s) for s in splits]))
+                filter_chains.append(
+                    "[%s:v]" % (i)
+                    + ", ".join(filters)
+                    + "".join([f"[v{i}out-{s}]" for s in splits])
+                )
 
                 # prevent buffer overflow with fifo:
                 # https://trac.ffmpeg.org/ticket/4950#comment:1
@@ -459,14 +613,22 @@ class SlideManager:
                 # https://stackoverflow.com/a/40746988
                 # https://stackoverflow.com/a/51978577
                 if "start" in splits:
-                    filter_chains.append("[v%sout-start]fifo,trim=start_frame=%s:end_frame=%s,"
-                                         "setpts=PTS-STARTPTS[v%sstart]" % (i, 0, fade_in_end, i))
+                    filter_chains.append(
+                        "[v%sout-start]fifo,trim=start_frame=%s:end_frame=%s,"
+                        "setpts=PTS-STARTPTS[v%sstart]" % (i, 0, fade_in_end, i)
+                    )
                 if "main" in splits:
-                    filter_chains.append("[v%sout-main]fifo,trim=start_frame=%s:end_frame=%s,"
-                                         "setpts=PTS-STARTPTS[v%smain]" % (i, fade_in_end, fade_out_start, i))
+                    filter_chains.append(
+                        "[v%sout-main]fifo,trim=start_frame=%s:end_frame=%s,"
+                        "setpts=PTS-STARTPTS[v%smain]"
+                        % (i, fade_in_end, fade_out_start, i)
+                    )
                 if "end" in splits:
-                    filter_chains.append("[v%sout-end]fifo,trim=start_frame=%s:end_frame=%s,setpts=PTS-STARTPTS[v%send]" % (
-                        i, fade_out_start, slide.getFrames(), i))
+                    filter_chains.append(
+                        "[v{}out-end]fifo,trim=start_frame={}:end_frame={},setpts=PTS-STARTPTS[v{}end]".format(
+                            i, fade_out_start, slide.getFrames(), i
+                        )
+                    )
 
         # Concat videos
         videos = []
@@ -486,14 +648,24 @@ class SlideManager:
                 if filter is not None:
                     if self.config["generate_temp"]:
                         # temporary transition video
-                        tempvideo_end = "%s%s_%s.mp4" % (self.tempFileFullPrefix, i - 1, "end")
-                        tempvideo_start = "%s%s_%s.mp4" % (self.tempFileFullPrefix, i, "start")
+                        tempvideo_end = "{}{}_{}.mp4".format(
+                            self.tempFileFullPrefix, i - 1, "end"
+                        )
+                        tempvideo_start = "{}{}_{}.mp4".format(
+                            self.tempFileFullPrefix, i, "start"
+                        )
 
-                        filter = "[0:v]format=rgba[v0];[1:v]format=rgba[v1];%s, setsar=1" % (filter)
+                        filter = (
+                            "[0:v]format=rgba[v0];[1:v]format=rgba[v1];%s, setsar=1"
+                            % (filter)
+                        )
 
                         trans_slide = self.getSlides()[i - 1]
                         output = self.queue.addItem(
-                            [tempvideo_end, tempvideo_start], filter, "%s_trans_%s" % (i, trans_slide.transition))
+                            [tempvideo_end, tempvideo_start],
+                            filter,
+                            f"{i}_trans_{trans_slide.transition}",
+                        )
 
                         self.tempInputFiles.append(output)
                     else:
@@ -501,8 +673,12 @@ class SlideManager:
                         videos.append(transition)
                 else:
                     if self.config["generate_temp"]:
-                        self.tempInputFiles.append("%s%s_%s.mp4" % (self.tempFileFullPrefix, i - 1, "end"))
-                        self.tempInputFiles.append("%s%s_%s.mp4" % (self.tempFileFullPrefix, i, "start"))
+                        self.tempInputFiles.append(
+                            "{}{}_{}.mp4".format(self.tempFileFullPrefix, i - 1, "end")
+                        )
+                        self.tempInputFiles.append(
+                            "{}{}_{}.mp4".format(self.tempFileFullPrefix, i, "start")
+                        )
                     else:
                         videos.append("[v%send]" % (i - 1))
                         videos.append("[v%sstart]" % (i))
@@ -510,7 +686,9 @@ class SlideManager:
             # append video between transitions
             if "main" in slide.splits:
                 if self.config["generate_temp"]:
-                    self.tempInputFiles.append("%s%s_%s.mp4" % (self.tempFileFullPrefix, i, "main"))
+                    self.tempInputFiles.append(
+                        "{}{}_{}.mp4".format(self.tempFileFullPrefix, i, "main")
+                    )
                 else:
                     videos.append("[v%smain]" % (i))
 
@@ -529,9 +707,13 @@ class SlideManager:
                     temp.append(video)
                     if len(temp) >= self.reduceVariable:
                         filter_names = ["[%s]" % (i) for i in range(len(temp))]
-                        filter = "%s concat=n=%s" % ("".join(filter_names), len(filter_names))
+                        filter = "{} concat=n={}".format(
+                            "".join(filter_names), len(filter_names)
+                        )
 
-                        output = self.queue.addItem(temp, filter, "%s_%s_combine" % (count, k))
+                        output = self.queue.addItem(
+                            temp, filter, f"{count}_{k}_combine"
+                        )
 
                         # add concated video
                         self.tempInputFiles.append(output)
@@ -549,7 +731,11 @@ class SlideManager:
         if burnSubtitles and self.hasSubtitles():
             subtitles = ",subtitles=%s" % (srtFilename)
 
-        filter_chains.append("%s concat=n=%s:v=1:a=0%s,format=yuv420p[out]" % ("".join(videos), len(videos), subtitles))
+        filter_chains.append(
+            "{} concat=n={}:v=1:a=0{},format=yuv420p[out]".format(
+                "".join(videos), len(videos), subtitles
+            )
+        )
 
         return filter_chains
 
@@ -560,7 +746,10 @@ class SlideManager:
         return self.background_tracks
 
     def hasAudio(self):
-        return len(self.background_tracks) > 0 or len([video for video in self.getVideos() if video.has_audio]) > 0
+        return (
+            len(self.background_tracks) > 0
+            or len([video for video in self.getVideos() if video.has_audio]) > 0
+        )
 
     def getMusicFadeOutDuration(self, idx):
         # first and last slide should fade the total music in/out
@@ -570,7 +759,9 @@ class SlideManager:
         return self.getSlideFadeOutDuration(idx, False)
 
     def getVideoAudioDuration(self):
-        return sum([slide.getDuration() for slide in self.getVideos() if slide.has_audio])
+        return sum(
+            [slide.getDuration() for slide in self.getVideos() if slide.has_audio]
+        )
 
     def getAudioDuration(self):
         return sum([audio.duration for audio in self.getBackgroundTracks()])
@@ -597,11 +788,22 @@ class SlideManager:
 
                 # Fade music in filter
                 if slide.fade_duration > 0:
-                    filters.append("afade=t=in:st=0:d=%s" % (self.getSlideFadeOutDuration(i - 1, False)))
-                    filters.append("afade=t=out:st=%s:d=%s" % (self.getSlideFadeOutPosition(i, False),
-                                                               self.getSlideFadeOutDuration(i, False)))
-                filters.append("adelay=%s|%s" % (int(self.getOffset(i, False) * 1000),
-                                                 int(self.getOffset(i, False) * 1000)))
+                    filters.append(
+                        "afade=t=in:st=0:d=%s"
+                        % (self.getSlideFadeOutDuration(i - 1, False))
+                    )
+                    filters.append(
+                        "afade=t=out:st={}:d={}".format(
+                            self.getSlideFadeOutPosition(i, False),
+                            self.getSlideFadeOutDuration(i, False),
+                        )
+                    )
+                filters.append(
+                    "adelay={}|{}".format(
+                        int(self.getOffset(i, False) * 1000),
+                        int(self.getOffset(i, False) * 1000),
+                    )
+                )
 
                 input_number = i
                 # append video with sound to input list
@@ -610,24 +812,47 @@ class SlideManager:
                     self.tempInputFiles.append(slide.file)
                     offset = offset + 1
 
-                filter_chains.append("[%s:a] %s [a%s]" % (input_number, ",".join(filters), i))
+                filter_chains.append(
+                    "[{}:a] {} [a{}]".format(input_number, ",".join(filters), i)
+                )
 
         # background-tracks
-        music_input_offset = len(self.getSlides()) if not self.config["generate_temp"] else len(self.tempInputFiles)
-        background_audio = ["[%s:a]" % (i + music_input_offset) for i, track in enumerate(self.background_tracks)]
+        music_input_offset = (
+            len(self.getSlides())
+            if not self.config["generate_temp"]
+            else len(self.tempInputFiles)
+        )
+        background_audio = [
+            "[%s:a]" % (i + music_input_offset)
+            for i, track in enumerate(self.background_tracks)
+        ]
 
         if len(background_audio) > 0:
             # extract background audio sections between videos
             background_sections = []
             # is it starting with a video or an image?
-            section_start_slide = None if isinstance(self.getSlides()[0], VideoSlide) and slide.has_audio else 0
+            section_start_slide = (
+                None
+                if isinstance(self.getSlides()[0], VideoSlide) and slide.has_audio
+                else 0
+            )
             for i, slide in enumerate(self.getSlides()):
                 # is it a video and we have a start value => end of this section
-                if isinstance(slide, VideoSlide) and slide.has_audio and section_start_slide is not None:
-                    background_sections.append({"start": self.getOffset(section_start_slide, False),
-                                                "fade_in": self.getMusicFadeOutDuration(section_start_slide - 1),
-                                                "end": self.getOffset(i, False),
-                                                "fade_out": self.getMusicFadeOutDuration(i)})
+                if (
+                    isinstance(slide, VideoSlide)
+                    and slide.has_audio
+                    and section_start_slide is not None
+                ):
+                    background_sections.append(
+                        {
+                            "start": self.getOffset(section_start_slide, False),
+                            "fade_in": self.getMusicFadeOutDuration(
+                                section_start_slide - 1
+                            ),
+                            "end": self.getOffset(i, False),
+                            "fade_out": self.getMusicFadeOutDuration(i),
+                        }
+                    )
                     section_start_slide = None
 
                 # is it a image but the previous one was a video => start new section
@@ -636,25 +861,52 @@ class SlideManager:
 
             # the last section is ending with an image => end of section is end generated video
             if section_start_slide is not None:
-                background_sections.append({"start": self.getOffset(section_start_slide, False),
-                                            "fade_in": self.getMusicFadeOutDuration(section_start_slide - 1),
-                                            "end": self.getTotalDuration() - self.getMusicFadeOutDuration(i),
-                                            "fade_out": self.getMusicFadeOutDuration(i)})
+                background_sections.append(
+                    {
+                        "start": self.getOffset(section_start_slide, False),
+                        "fade_in": self.getMusicFadeOutDuration(
+                            section_start_slide - 1
+                        ),
+                        "end": self.getTotalDuration()
+                        - self.getMusicFadeOutDuration(i),
+                        "fade_out": self.getMusicFadeOutDuration(i),
+                    }
+                )
 
             if len(background_sections) > 0:
                 # merge background tracks
-                filter_chains.append("%s concat=n=%s:v=0:a=1[background_audio]" % ("".join(background_audio),
-                                                                                   len(self.background_tracks)))
+                filter_chains.append(
+                    "{} concat=n={}:v=0:a=1[background_audio]".format(
+                        "".join(background_audio), len(self.background_tracks)
+                    )
+                )
 
                 # split the background tracks in the necessary sections
-                filter_chains.append("[background_audio]asplit=%s %s" % (len(background_sections), "".join(
-                    ["[b%s]" % (i) for i, section in enumerate(background_sections)])))
+                filter_chains.append(
+                    "[background_audio]asplit={} {}".format(
+                        len(background_sections),
+                        "".join(
+                            [
+                                "[b%s]" % (i)
+                                for i, section in enumerate(background_sections)
+                            ]
+                        ),
+                    )
+                )
 
                 # fade background sections in/out
                 for i, section in enumerate(background_sections):
                     audio_tracks.append("[b%sf]" % (i))
-                    filter_chains.append("[b%s]afade=t=in:st=%s:d=%s,afade=t=out:st=%s:d=%s[b%sf]" % (
-                        i, section["start"], section["fade_in"], section["end"], section["fade_out"], i))
+                    filter_chains.append(
+                        "[b{}]afade=t=in:st={}:d={},afade=t=out:st={}:d={}[b{}f]".format(
+                            i,
+                            section["start"],
+                            section["fade_in"],
+                            section["end"],
+                            section["fade_out"],
+                            i,
+                        )
+                    )
             else:
                 logger.debug("no background section")
         else:
@@ -662,7 +914,11 @@ class SlideManager:
 
         # video audio and background sections should be merged
         if len(audio_tracks) > 0:
-            filter_chains.append("%s amix=inputs=%s[aout]" % ("".join(audio_tracks), len(audio_tracks)))
+            filter_chains.append(
+                "{} amix=inputs={}[aout]".format(
+                    "".join(audio_tracks), len(audio_tracks)
+                )
+            )
         else:
             logger.debug("no audio track")
 
@@ -678,7 +934,10 @@ class SlideManager:
             # add beginning of track
             timestamps.append(0 + offset)
             # get timestamps of track
-            timestamps = timestamps + [float(timestamp) + offset for timestamp in track.getTimestamps(self.config["aubio"])]
+            timestamps = timestamps + [
+                float(timestamp) + offset
+                for timestamp in track.getTimestamps(self.config["aubio"])
+            ]
             # next track has the offsets after the current
             offset = offset + track.duration
 
@@ -692,21 +951,29 @@ class SlideManager:
 
         timestamps = self.getTimestampsFromAudio()
 
-        logger.debug("Slide durations (before): %s", [slide.getDuration() for slide in self.getSlides()])
+        logger.debug(
+            "Slide durations (before): %s",
+            [slide.getDuration() for slide in self.getSlides()],
+        )
 
         # change slide durations
         timestamp_idx = 0
         for i, slide in enumerate(self.getSlides()):
-            if not slide.has_audio and not isinstance(slide, VideoSlide) and timestamp_idx < len(timestamps):
+            if (
+                not slide.has_audio
+                and not isinstance(slide, VideoSlide)
+                and timestamp_idx < len(timestamps)
+            ):
 
                 slide_start = self.getOffset(i, False)
 
                 # find the next timestamp after the slide starts
                 # and skip timestamps until the minimum duration is reached
                 no_result = False
-                while ((slide_start >= (timestamps[timestamp_idx])
-                       or (timestamps[timestamp_idx] - slide_start))
-                       < slide.slide_duration_min):
+                while (
+                    slide_start >= (timestamps[timestamp_idx])
+                    or (timestamps[timestamp_idx] - slide_start)
+                ) < slide.slide_duration_min:
                     # is the music long enough?
                     if (timestamp_idx + 1) < len(timestamps):
                         timestamp_idx = timestamp_idx + 1
@@ -724,11 +991,17 @@ class SlideManager:
                         # timestamp matches fade end:    duration
                         # timestamp matches fade middle: duration + self.getTransitionFrames(i)/2/self.config["fps"]
                         # timestamp matches fade begin:  duration + self.getTransitionFrames(i)/self.config["fps"]
-                        slide.setDuration(duration + self.getTransitionFrames(i) / 2 / self.config["fps"])
+                        slide.setDuration(
+                            duration
+                            + self.getTransitionFrames(i) / 2 / self.config["fps"]
+                        )
                         timestamp_idx = timestamp_idx + 1
 
         self.config["is_synced_to_audio"] = True
-        logger.debug("Slide durations (after): %s", [slide.getDuration() for slide in self.getSlides()])
+        logger.debug(
+            "Slide durations (after): %s",
+            [slide.getDuration() for slide in self.getSlides()],
+        )
 
     def adjustTitlesToSlides(self):
 
@@ -755,7 +1028,9 @@ class SlideManager:
 
         return frames / self.config["fps"]
 
-    def createVideo(self, output_file, check=False, save=None, test=False, overwrite=False):
+    def createVideo(
+        self, output_file, check=False, save=None, test=False, overwrite=False
+    ):
         logger.info("Create video %s", output_file)
 
         # check if it is okay to have a shorter background track
@@ -765,22 +1040,39 @@ class SlideManager:
             logger.info("Video length: %s", video_duration)
             logger.info("Background track length: %s", audio_duration)
             if len(self.background_tracks) > 0 and audio_duration < video_duration:
-                print("Background track (%s) is shorter than video length (%s)!" % (audio_duration, video_duration))
-                logger.info("Background track (%s) is shorter than video length (%s)!", audio_duration, video_duration)
+                print(
+                    "Background track ({}) is shorter than video length ({})!".format(
+                        audio_duration, video_duration
+                    )
+                )
+                logger.info(
+                    "Background track (%s) is shorter than video length (%s)!",
+                    audio_duration,
+                    video_duration,
+                )
 
-                if not input("Are you sure this is fine? (y/n): ").lower().strip()[:1] == "y":
+                if (
+                    not input("Are you sure this is fine? (y/n): ").lower().strip()[:1]
+                    == "y"
+                ):
                     sys.exit(1)
 
         # Save configuration
         if save is not None:
             self.saveConfig(self.config["save"])
 
-        burnSubtitles, srtInput, srtFilename, inputs, temp_filter_script = self.prepareVideoProcessing(output_file)
+        (
+            burnSubtitles,
+            srtInput,
+            srtFilename,
+            inputs,
+            temp_filter_script,
+        ) = self.prepareVideoProcessing(output_file)
 
         # create temporary videos
         if not test:
             for idx, item in enumerate(self.queue.getQueue()):
-                print("Processing video %s/%s" % (idx, self.queue.getQueueLength()))
+                print(f"Processing video {idx}/{self.queue.getQueueLength()}")
                 tempFile = self.queue.createTemporaryVideo(self.config["ffmpeg"], item)
 
                 if tempFile is None:
@@ -796,7 +1088,14 @@ class SlideManager:
         if not test:
             # Run ffmpeg
             cmd = self.getFinalVideoCommand(
-                output_file, burnSubtitles, srtInput, srtFilename, inputs, temp_filter_script, overwrite)
+                output_file,
+                burnSubtitles,
+                srtInput,
+                srtFilename,
+                inputs,
+                temp_filter_script,
+                overwrite,
+            )
             logger.info("FFMPEG started")
             logger.debug(" ".join(cmd))
             subprocess.call(" ".join(cmd), shell=True)
@@ -823,49 +1122,75 @@ class SlideManager:
         # Get Audio Filter
         audio_filters = self.getAudioFilterChains()
 
-        temp_filter_script = os.path.join(self.tempFileFolder, "temp-kburns-video-script.txt")
-        with open('%s' % (temp_filter_script), 'w') as file:
+        temp_filter_script = os.path.join(
+            self.tempFileFolder, "temp-kburns-video-script.txt"
+        )
+        with open("%s" % (temp_filter_script), "w") as file:
             file.write(";\n".join(video_filters + audio_filters))
 
         return burnSubtitles, srtInput, srtFilename, inputs, temp_filter_script
 
-    def getFinalVideoCommand(self, output_file, burnSubtitles, srtInput,
-                             srtFilename, inputs, temp_filter_script, overwrite=False):
-        cmd = [self.config["ffmpeg"],
-               "-hide_banner",
-               # "-v quiet",
-               "-stats",
-               "-y" if overwrite else "",
-               # slides
-               " ".join(["-i \"%s\" " % (f) for f in inputs]),
-               " ".join(["-i \"%s\" " % (track.file) for track in self.getBackgroundTracks()]),
-               # subtitles (only mkv)
-               "-i %s" % (srtFilename) if self.hasSubtitles() and not burnSubtitles else "",
-               # filters
-               "-filter_complex_script \"%s\"" % (temp_filter_script),
-               # define duration
-               # if video should be loopable, skip the start fade-in (-ss) and the end fade-out
-               # (video is stopped after the fade-in of the last image which is the same as the first-image)
-               "-ss %s -t %s" % (self.getSlideFadeOutDuration(0) / self.config["fps"], self.getOffset(-1, False))
-               if self.config["loopable"] else "-t %s" % (self.getTotalDuration()),
-               # "-t %s" % (self.getTotalDuration()),
-               # define output
-               "-map", "[out]:v",
-               "-c:v %s" % (self.config["output_codec"]) if self.config["output_codec"] else "",
-               # "-crf", "0" ,
-               # "-preset", "ultrafast",
-               # "-tune", "stillimage",
-               self.config["output_parameters"],
-               "-map [aout]:a" if self.hasAudio() else "",
-               # audio compression and bitrate
-               "-c:a aac" if self.hasAudio() else "",
-               "-b:a 160k" if self.hasAudio() else "",
-               # map subtitles (only mkv)
-               "-map %s:s" % (srtInput) if self.hasSubtitles() and not burnSubtitles else "",
-               # set subtitles enabled (only mkv)
-               "-disposition:s:s:0 default" if self.hasSubtitles() and not burnSubtitles else "",
-               "\"%s\"" % (output_file)
-               ]
+    def getFinalVideoCommand(
+        self,
+        output_file,
+        burnSubtitles,
+        srtInput,
+        srtFilename,
+        inputs,
+        temp_filter_script,
+        overwrite=False,
+    ):
+        cmd = [
+            self.config["ffmpeg"],
+            "-hide_banner",
+            # "-v quiet",
+            "-stats",
+            "-y" if overwrite else "",
+            # slides
+            " ".join(['-i "%s" ' % (f) for f in inputs]),
+            " ".join(
+                ['-i "%s" ' % (track.file) for track in self.getBackgroundTracks()]
+            ),
+            # subtitles (only mkv)
+            "-i %s" % (srtFilename)
+            if self.hasSubtitles() and not burnSubtitles
+            else "",
+            # filters
+            '-filter_complex_script "%s"' % (temp_filter_script),
+            # define duration
+            # if video should be loopable, skip the start fade-in (-ss) and the end fade-out
+            # (video is stopped after the fade-in of the last image which is the same as the first-image)
+            "-ss {} -t {}".format(
+                self.getSlideFadeOutDuration(0) / self.config["fps"],
+                self.getOffset(-1, False),
+            )
+            if self.config["loopable"]
+            else "-t %s" % (self.getTotalDuration()),
+            # "-t %s" % (self.getTotalDuration()),
+            # define output
+            "-map",
+            "[out]:v",
+            "-c:v %s" % (self.config["output_codec"])
+            if self.config["output_codec"]
+            else "",
+            # "-crf", "0" ,
+            # "-preset", "ultrafast",
+            # "-tune", "stillimage",
+            self.config["output_parameters"],
+            "-map [aout]:a" if self.hasAudio() else "",
+            # audio compression and bitrate
+            "-c:a aac" if self.hasAudio() else "",
+            "-b:a 160k" if self.hasAudio() else "",
+            # map subtitles (only mkv)
+            "-map %s:s" % (srtInput)
+            if self.hasSubtitles() and not burnSubtitles
+            else "",
+            # set subtitles enabled (only mkv)
+            "-disposition:s:s:0 default"
+            if self.hasSubtitles() and not burnSubtitles
+            else "",
+            '"%s"' % (output_file),
+        ]
 
         return cmd
 
@@ -886,7 +1211,7 @@ class SlideManager:
         last_slide = self.getSlides()[-1]
         last_slide_start = self.getOffset(-1)
 
-        return (last_slide_start + last_slide.getFrames())
+        return last_slide_start + last_slide.getFrames()
 
     ###################################
     #           Config                #
@@ -919,14 +1244,16 @@ class SlideManager:
                 "temp_file_folder": self.tempFileFolder,
                 "temp_file_prefix": self.tempFilePrefix,
                 # the slides duration is already synced to the audio
-                "sync_to_audio": False if self.config["is_synced_to_audio"] else self.config["sync_to_audio"],
+                "sync_to_audio": False
+                if self.config["is_synced_to_audio"]
+                else self.config["sync_to_audio"],
                 "sync_titles_to_slides": self.config["sync_titles_to_slides"],
-                "is_synced_to_audio": self.config["is_synced_to_audio"]
+                "is_synced_to_audio": self.config["is_synced_to_audio"],
             },
             "slides": [slide.getObject(self.config) for slide in self.slides],
-            "audio": [track.getObject() for track in self.getBackgroundTracks()]
+            "audio": [track.getObject() for track in self.getBackgroundTracks()],
         }
-        with open('%s' % (filename), 'w') as file:
+        with open("%s" % (filename), "w") as file:
             json.dump(content, file, indent=4)
 
     ###################################
@@ -936,20 +1263,24 @@ class SlideManager:
         return len([slide for slide in self.getSlides() if slide.title is not None]) > 0
 
     def createSubtitles(self, filename):
-        with open('%s' % (filename), 'w') as file:
+        with open("%s" % (filename), "w") as file:
             subtitle_index = 1
             for i, slide in enumerate(self.slides):
                 if slide.title is not None:
                     # start the subtitle when the fade-in is done
-                    offset = self.getOffset(i, False) + self.getSlideFadeOutDuration(i - 1, False)
+                    offset = self.getOffset(i, False) + self.getSlideFadeOutDuration(
+                        i - 1, False
+                    )
                     srt_start = self.getSubtitleFormat(offset)
 
                     # end the subtitle when the fade-out is done
-                    offset_next = self.getOffset(i + 1, False) + self.getSlideFadeOutDuration(i, False)
+                    offset_next = self.getOffset(
+                        i + 1, False
+                    ) + self.getSlideFadeOutDuration(i, False)
                     srt_end = self.getSubtitleFormat(offset_next)
 
                     file.write("%s\n" % (subtitle_index))
-                    file.write("%s --> %s\n" % (srt_start, srt_end))
+                    file.write(f"{srt_start} --> {srt_end}\n")
                     file.write("%s\n\n" % (slide.title))
                     subtitle_index += 1
 
@@ -960,4 +1291,4 @@ class SlideManager:
         minutes = int((millis / (1000 * 60)) % 60)
         hours = (millis / (1000 * 60 * 60)) % 24
 
-        return '%02d:%02d:%02d,%03d' % (hours, minutes, seconds, milliseconds)
+        return "%02d:%02d:%02d,%03d" % (hours, minutes, seconds, milliseconds)

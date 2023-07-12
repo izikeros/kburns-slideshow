@@ -33,7 +33,7 @@ exe = EXE(pyz,
           upx_exclude=[],
           runtime_tmpdir=None,
           console=False )
-          
-          
+
+
 shutil.copyfile('config.json', '%s/config.json' %(DISTPATH))
 shutil.copytree('transitions', '%s/transitions' %(DISTPATH))

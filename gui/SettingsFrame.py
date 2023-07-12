@@ -1,7 +1,6 @@
+import logging
 import tkinter as tk
 from tkinter import ttk
-
-import logging
 
 logger = logging.getLogger("kburns-slideshow")
 
@@ -61,7 +60,9 @@ class SettingsFrame(tk.Toplevel):
         self.inputOutputParameters.set(slideshow_config["output_parameters"])
         parametersLabel = tk.Label(outputFrame, text="Parameters")
         parametersLabel.grid(row=1, column=0, sticky=tk.W, padx=4, pady=4)
-        parametersEntry = tk.Entry(outputFrame, width=67, textvariable=self.inputOutputParameters)
+        parametersEntry = tk.Entry(
+            outputFrame, width=67, textvariable=self.inputOutputParameters
+        )
         parametersEntry.grid(row=1, column=1, columnspan=3, sticky=tk.W, padx=4, pady=4)
 
         self.inputOutputCodec.set(slideshow_config["output_codec"])
@@ -145,28 +146,39 @@ class SettingsFrame(tk.Toplevel):
         self.inputZoomDirectionX.set(slideshow_config["zoom_direction_x"])
         zoomDirectionXLabel = tk.Label(slideFrame, text="Zoom Direction X")
         zoomDirectionXLabel.grid(row=3, column=0, sticky=tk.W, padx=4, pady=4)
-        zoomDirectionXCombo = ttk.Combobox(slideFrame, values=choices["zoom_direction_x"],
-                                           textvariable=self.inputZoomDirectionX)
+        zoomDirectionXCombo = ttk.Combobox(
+            slideFrame,
+            values=choices["zoom_direction_x"],
+            textvariable=self.inputZoomDirectionX,
+        )
         zoomDirectionXCombo.grid(row=3, column=1, sticky=tk.W, padx=4, pady=4)
 
         self.inputZoomDirectionY.set(slideshow_config["zoom_direction_y"])
         zoomDirectionYLabel = tk.Label(slideFrame, text="Zoom Direction Y")
         zoomDirectionYLabel.grid(row=4, column=0, sticky=tk.W, padx=4, pady=4)
-        zoomDirectionYCombo = ttk.Combobox(slideFrame, values=choices["zoom_direction_x"],
-                                           textvariable=self.inputZoomDirectionY)
+        zoomDirectionYCombo = ttk.Combobox(
+            slideFrame,
+            values=choices["zoom_direction_x"],
+            textvariable=self.inputZoomDirectionY,
+        )
         zoomDirectionYCombo.grid(row=4, column=1, sticky=tk.W, padx=4, pady=4)
 
         self.inputZoomDirectionZ.set(slideshow_config["zoom_direction_z"])
         zoomDirectionZLabel = tk.Label(slideFrame, text="Zoom Direction Z")
         zoomDirectionZLabel.grid(row=5, column=0, sticky=tk.W, padx=4, pady=4)
-        zoomDirectionZCombo = ttk.Combobox(slideFrame, values=choices["zoom_direction_x"],
-                                           textvariable=self.inputZoomDirectionZ)
+        zoomDirectionZCombo = ttk.Combobox(
+            slideFrame,
+            values=choices["zoom_direction_x"],
+            textvariable=self.inputZoomDirectionZ,
+        )
         zoomDirectionZCombo.grid(row=5, column=1, sticky=tk.W, padx=4, pady=4)
 
         self.inputScaleMode.set(slideshow_config["scale_mode"])
         scaleModeLabel = tk.Label(slideFrame, text="Scale Mode")
         scaleModeLabel.grid(row=6, column=0, sticky=tk.W, padx=4, pady=4)
-        scaleModeCombo = ttk.Combobox(slideFrame, values=choices["scale_mode"], textvariable=self.inputScaleMode)
+        scaleModeCombo = ttk.Combobox(
+            slideFrame, values=choices["scale_mode"], textvariable=self.inputScaleMode
+        )
         scaleModeCombo.grid(row=6, column=1, sticky=tk.W, padx=4, pady=4)
 
         transitionFrame = tk.LabelFrame(self, text="Transition")
@@ -175,26 +187,36 @@ class SettingsFrame(tk.Toplevel):
         self.inputTransitionDuration.set(slideshow_config["fade_duration"])
         transitionDurationLabel = tk.Label(transitionFrame, text="Duration")
         transitionDurationLabel.grid(row=0, column=0, sticky=tk.W, padx=4, pady=4)
-        transitionDurationEntry = tk.Entry(transitionFrame, textvariable=self.inputTransitionDuration)
+        transitionDurationEntry = tk.Entry(
+            transitionFrame, textvariable=self.inputTransitionDuration
+        )
         transitionDurationEntry.grid(row=0, column=1, sticky=tk.W, padx=4, pady=4)
 
         self.inputTransition.set(slideshow_config["transition"])
         transitionLabel = tk.Label(transitionFrame, text="Transition")
         transitionLabel.grid(row=1, column=0, sticky=tk.W, padx=4, pady=4)
-        transitionCombo = ttk.Combobox(transitionFrame, values=[
-                                       "random"] + choices["transition"], width=30, textvariable=self.inputTransition)
+        transitionCombo = ttk.Combobox(
+            transitionFrame,
+            values=["random"] + choices["transition"],
+            width=30,
+            textvariable=self.inputTransition,
+        )
         transitionCombo.grid(row=1, column=1, sticky=tk.W, padx=4, pady=4)
 
         self.inputTransitionBars.set(slideshow_config["transition_bars_count"])
         transitionBarsLabel = tk.Label(transitionFrame, text="Transition Bars Count")
         transitionBarsLabel.grid(row=2, column=0, sticky=tk.W, padx=4, pady=4)
-        transitionBarsEntry = tk.Entry(transitionFrame, textvariable=self.inputTransitionBars)
+        transitionBarsEntry = tk.Entry(
+            transitionFrame, textvariable=self.inputTransitionBars
+        )
         transitionBarsEntry.grid(row=2, column=1, sticky=tk.W, padx=4, pady=4)
 
         self.inputTransitionCells.set(slideshow_config["transition_cell_size"])
         transitionCellsLabel = tk.Label(transitionFrame, text="Transition Cell Size")
         transitionCellsLabel.grid(row=3, column=0, sticky=tk.W, padx=4, pady=4)
-        transitionCellsEntry = tk.Entry(transitionFrame, textvariable=self.inputTransitionCells)
+        transitionCellsEntry = tk.Entry(
+            transitionFrame, textvariable=self.inputTransitionCells
+        )
         transitionCellsEntry.grid(row=3, column=1, sticky=tk.W, padx=4, pady=4)
 
     def getConfig(self):
@@ -221,5 +243,5 @@ class SettingsFrame(tk.Toplevel):
             "delete_temp": self.inputDeleteTemp.get(),
             "temp_file_folder": self.inputTempFileFolder.get(),
             "temp_file_prefix": self.inputTempFilePrefix.get(),
-            "sync_to_audio": self.inputSyncToAudio.get()
+            "sync_to_audio": self.inputSyncToAudio.get(),
         }

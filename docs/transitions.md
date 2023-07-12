@@ -1,5 +1,5 @@
 # ffmpeg-video-slideshow-scripts transitions
-I have integrated all video transitions of [ffmpeg-video-slideshow-scripts](https://github.com/tanersener/ffmpeg-video-slideshow-scripts). 
+I have integrated all video transitions of [ffmpeg-video-slideshow-scripts](https://github.com/tanersener/ffmpeg-video-slideshow-scripts).
 
 You can get the transitions by buying me a coffee from <a href="https://bmc.xyz/l/kburnstransit" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>.
 
@@ -54,7 +54,7 @@ fade_in_one equals the default `fade` transition.
 ![sliding_bars_vertical_b2t](demo/sliding_bars_vertical_b2t.gif) ![sliding_bars_vertical_t2b](demo/sliding_bars_vertical_t2b.gif)
 
 ## Spin Blur Rotation
-![spin_blur_rotation](demo/spin_blur_rotation.gif) 
+![spin_blur_rotation](demo/spin_blur_rotation.gif)
 
 ## Wipe In
 ![wipe_in_horizontal_l2r](demo/wipe_in_horizontal_l2r.gif) ![wipe_in_horizontal_r2l](demo/wipe_in_horizontal_r2l.gif)
@@ -65,7 +65,7 @@ fade_in_one equals the default `fade` transition.
 ![wipe_out_vertical_b2t](demo/wipe_out_vertical_b2t.gif) ![wipe_out_vertical_t2b](demo/wipe_out_vertical_t2b.gif)
 
 # License
-The ffmpeg-video-slideshow-scripts transitions 
+The ffmpeg-video-slideshow-scripts transitions
 * bars_horizontal_one
 * bars_horizontal_two
 * bars_vertical_one
@@ -110,7 +110,7 @@ The ffmpeg-video-slideshow-scripts transitions
 
 are also licensed under the MIT license.
 
-The ffmpeg-video-slideshow-scripts transitions 
+The ffmpeg-video-slideshow-scripts transitions
 * box_in_horizontal_l2r
 * box_in_horizontal_r2l
 * box_in_vertical_b2t

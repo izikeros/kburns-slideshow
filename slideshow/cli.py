@@ -2,15 +2,14 @@
 
 import argparse
 import json
-import os
 import logging
+import os
 import pkgutil
 
 logger = logging.getLogger("kburns-slideshow")
 
 
 class CLI:
-
     def __init__(self, config):
         self.config = config
 
@@ -18,58 +17,153 @@ class CLI:
 
         self.parser = argparse.ArgumentParser()
 
-        self.parser.add_argument("-S", "--size", metavar='WIDTHxHEIGHT', help="Output width (default: %sx%s)" %
-                                 (self.config["output_width"], self.config["output_height"]))
-        self.parser.add_argument("-sd", "--slide-duration", metavar='DURATION', type=float,
-                                 help="Slide duration (seconds) (default: %s)" % (self.config["slide_duration"]))
-        self.parser.add_argument("-sdm", "--slide-duration-min", metavar='DURATION', type=float,
-                                 help="Slide duration minimum (seconds) (default: %s)" % (self.config["slide_duration_min"]))
-        self.parser.add_argument("-fd", "--fade-duration", metavar='DURATION', type=float,
-                                 help="Fade duration (seconds) (default: %s)" % (self.config["fade_duration"]))
+        self.parser.add_argument(
+            "-S",
+            "--size",
+            metavar="WIDTHxHEIGHT",
+            help="Output width (default: %sx%s)"
+            % (self.config["output_width"], self.config["output_height"]),
+        )
+        self.parser.add_argument(
+            "-sd",
+            "--slide-duration",
+            metavar="DURATION",
+            type=float,
+            help="Slide duration (seconds) (default: %s)"
+            % (self.config["slide_duration"]),
+        )
+        self.parser.add_argument(
+            "-sdm",
+            "--slide-duration-min",
+            metavar="DURATION",
+            type=float,
+            help="Slide duration minimum (seconds) (default: %s)"
+            % (self.config["slide_duration_min"]),
+        )
+        self.parser.add_argument(
+            "-fd",
+            "--fade-duration",
+            metavar="DURATION",
+            type=float,
+            help="Fade duration (seconds) (default: %s)"
+            % (self.config["fade_duration"]),
+        )
 
-        transition_choices = [package_name for importer, package_name, _ in pkgutil.iter_modules(
-            [os.path.join(os.getcwd(), "transitions")])]
+        transition_choices = [
+            package_name
+            for importer, package_name, _ in pkgutil.iter_modules(
+                [os.path.join(os.getcwd(), "transitions")]
+            )
+        ]
 
-        self.parser.add_argument("-ft", "--fade-transition", metavar='TRANSITION', choices=transition_choices,
-                                 help="Fade transition (default: %s)" % (self.config["transition"]))
+        self.parser.add_argument(
+            "-ft",
+            "--fade-transition",
+            metavar="TRANSITION",
+            choices=transition_choices,
+            help="Fade transition (default: %s)" % (self.config["transition"]),
+        )
 
-        self.parser.add_argument("-fps", "--fps", metavar='FPS', type=int,
-                                 help="Output framerate (frames per second) (default: %s)" % (self.config["fps"]))
+        self.parser.add_argument(
+            "-fps",
+            "--fps",
+            metavar="FPS",
+            type=int,
+            help="Output framerate (frames per second) (default: %s)"
+            % (self.config["fps"]),
+        )
 
-        self.parser.add_argument("-zdx", "--zoom-direction-x", metavar='DIRECTION_X',
-                                 choices=["random", "left", "center", "right"],
-                                 help="Zoom direction (default: %s)" % (self.config["zoom_direction_x"]))
-        self.parser.add_argument("-zdy", "--zoom-direction-y", metavar='DIRECTION_Y',
-                                 choices=["random", "top", "center", "bottom"],
-                                 help="Zoom direction (default: %s)" % (self.config["zoom_direction_y"]))
-        self.parser.add_argument("-zdz", "--zoom-direction-z", metavar='DIRECTION_Z',
-                                 choices=["random", "none", "in", "out"],
-                                 help="Zoom direction (default: %s)" % (self.config["zoom_direction_z"]))
+        self.parser.add_argument(
+            "-zdx",
+            "--zoom-direction-x",
+            metavar="DIRECTION_X",
+            choices=["random", "left", "center", "right"],
+            help="Zoom direction (default: %s)" % (self.config["zoom_direction_x"]),
+        )
+        self.parser.add_argument(
+            "-zdy",
+            "--zoom-direction-y",
+            metavar="DIRECTION_Y",
+            choices=["random", "top", "center", "bottom"],
+            help="Zoom direction (default: %s)" % (self.config["zoom_direction_y"]),
+        )
+        self.parser.add_argument(
+            "-zdz",
+            "--zoom-direction-z",
+            metavar="DIRECTION_Z",
+            choices=["random", "none", "in", "out"],
+            help="Zoom direction (default: %s)" % (self.config["zoom_direction_z"]),
+        )
 
-        self.parser.add_argument("-zr", "--zoom-rate", metavar='RATE', type=float,
-                                 help="Zoom rate (default:  %s)" % (self.config["zoom_rate"]))
-        self.parser.add_argument("-sm", "--scale-mode", metavar='SCALE_MODE', choices=[
-                                 "auto", "pad", "pan", "crop_center"],
-                                 help="Scale mode (pad, crop_center, pan) (default: %s)" % (self.config["scale_mode"]))
-        self.parser.add_argument("-l", "--loopable", action='store_true', help="Create loopable video")
-        self.parser.add_argument("-y", action='store_true', help="Overwrite output file without asking")
+        self.parser.add_argument(
+            "-zr",
+            "--zoom-rate",
+            metavar="RATE",
+            type=float,
+            help="Zoom rate (default:  %s)" % (self.config["zoom_rate"]),
+        )
+        self.parser.add_argument(
+            "-sm",
+            "--scale-mode",
+            metavar="SCALE_MODE",
+            choices=["auto", "pad", "pan", "crop_center"],
+            help="Scale mode (pad, crop_center, pan) (default: %s)"
+            % (self.config["scale_mode"]),
+        )
+        self.parser.add_argument(
+            "-l", "--loopable", action="store_true", help="Create loopable video"
+        )
+        self.parser.add_argument(
+            "-y", action="store_true", help="Overwrite output file without asking"
+        )
 
-        self.parser.add_argument("-t", "--temp", action='store_true', help="Generate temporary files")
-        self.parser.add_argument("-d", "--delete-temp", action='store_true', help="Generate temporary files")
+        self.parser.add_argument(
+            "-t", "--temp", action="store_true", help="Generate temporary files"
+        )
+        self.parser.add_argument(
+            "-d", "--delete-temp", action="store_true", help="Generate temporary files"
+        )
 
-        self.parser.add_argument("-a", "--audio", metavar='FILE',
-                                 help="One or more background audio tracks", nargs='*')
-        self.parser.add_argument("-sy", "--sync-to-audio", action='store_true', help="Sync slides duration to audio")
+        self.parser.add_argument(
+            "-a",
+            "--audio",
+            metavar="FILE",
+            help="One or more background audio tracks",
+            nargs="*",
+        )
+        self.parser.add_argument(
+            "-sy",
+            "--sync-to-audio",
+            action="store_true",
+            help="Sync slides duration to audio",
+        )
 
-        self.parser.add_argument("--sync-titles-to-slides", action='store_true', help="Sync title duration to slides duration")
+        self.parser.add_argument(
+            "--sync-titles-to-slides",
+            action="store_true",
+            help="Sync title duration to slides duration",
+        )
 
-        self.parser.add_argument("-i", "--input-files", metavar='FILE', help="One or more input files", nargs='+')
-        self.parser.add_argument("-f", "--file-list", metavar='LIST',)
+        self.parser.add_argument(
+            "-i",
+            "--input-files",
+            metavar="FILE",
+            help="One or more input files",
+            nargs="+",
+        )
+        self.parser.add_argument(
+            "-f",
+            "--file-list",
+            metavar="LIST",
+        )
 
-        self.parser.add_argument("-s", "--save", metavar='FILE', help="save settings")
+        self.parser.add_argument("-s", "--save", metavar="FILE", help="save settings")
 
-        self.parser.add_argument("-test", action='store_true',
-                                 help="Only test the input and do not generate the videos")
+        self.parser.add_argument(
+            "-test",
+            action="store_true",
+            help="Only test the input and do not generate the videos",
+        )
 
         self.parser.add_argument("output_file")
 
@@ -122,8 +216,7 @@ class CLI:
 
         if args.slide_duration_min is not None:
             self.config["slide_duration_min"] = args.slide_duration_min
-            logger.debug("Set min slide duration to %s",
-                         args.slide_duration_min)
+            logger.debug("Set min slide duration to %s", args.slide_duration_min)
 
         if args.fade_duration is not None:
             self.config["fade_duration"] = args.fade_duration

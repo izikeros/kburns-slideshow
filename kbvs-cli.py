@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
+import json
 import logging
 import os
-import json
 
 import slideshow.cli as cli
 from slideshow.SlideManager import SlideManager
@@ -10,9 +10,11 @@ from slideshow.SlideManager import SlideManager
 # Logging
 logger = logging.getLogger("kburns-slideshow")
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(os.path.dirname(os.path.realpath(__file__)) + '/kburns-slideshow.log')
+handler = logging.FileHandler(
+    os.path.dirname(os.path.realpath(__file__)) + "/kburns-slideshow.log"
+)
 handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
@@ -20,7 +22,9 @@ logger.addHandler(handler)
 if __name__ == "__main__":
 
     config = {}
-    with open(os.path.dirname(os.path.realpath(__file__)) + '/config.json') as config_file:
+    with open(
+        os.path.dirname(os.path.realpath(__file__)) + "/config.json"
+    ) as config_file:
         config = json.load(config_file)
 
     command_line = cli.CLI(config)
@@ -36,4 +40,6 @@ if __name__ == "__main__":
         logger.info("Sync titles durations to slides durations")
         sm.adjustTitlesToSlides()
 
-    sm.createVideo(output_file, True, config["save"], config["test"], config["overwrite"])
+    sm.createVideo(
+        output_file, True, config["save"], config["test"], config["overwrite"]
+    )
