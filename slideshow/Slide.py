@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import os
 import pkgutil
 import random
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+from slideshow import PROJECT_ROOT
+
 
 class Slide:
     def __init__(
@@ -111,6 +111,6 @@ class Slide:
         return [
             package_name
             for importer, package_name, _ in pkgutil.iter_modules(
-                [os.path.join(PROJECT_ROOT, "transitions")]
+                [PROJECT_ROOT / "transitions"]
             )
         ]
