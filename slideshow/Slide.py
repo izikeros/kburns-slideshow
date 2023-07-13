@@ -85,7 +85,9 @@ class Slide:
     def getObject(self, config):
         object = {"file": self.file}
 
-        if self.getDuration() != config["slide_duration"]:
+        # was config["slide_duration"] but there was no slide_duration in config,
+        # instead there was duration in the config.
+        if self.getDuration() != config["duration"]:
             object["slide_duration"] = self.getDuration()
 
         if self.fade_duration != config["fade_duration"]:
