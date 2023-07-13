@@ -1,0 +1,6 @@
+pytest 		    # Testing framework
+pytest-sugar	#
+pytest-cov 		#
+pytest-icdiff   # Better diffs in pytest assertion error messages using ICDiff.
+pytest-clarity  # A pytest plugin which brings the coloured diff output
+pytest-catchlog # py.test plugin to catch log messages
