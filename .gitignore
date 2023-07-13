@@ -7,3 +7,8 @@ transitions/*
 .idea/
 .code
 docs/demo_video
+
+/temp/
+/tests/.pytest_cache/
+
+/kburns-slideshow.log
