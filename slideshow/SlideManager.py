@@ -16,6 +16,7 @@ from .VideoSlide import VideoSlide
 
 logger = logging.getLogger("kburns-slideshow")
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 class SlideManager:
 
@@ -31,7 +32,7 @@ class SlideManager:
             config["temp_file_folder"] if "temp_file_folder" in config else "temp"
         )
         if not os.path.isabs(self.tempFileFolder):
-            self.tempFileFolder = os.path.join(os.getcwd(), self.tempFileFolder)
+            self.tempFileFolder = os.path.join(PROJECT_ROOT, self.tempFileFolder)
 
         self.tempFilePrefix = (
             config["temp_file_prefix"]

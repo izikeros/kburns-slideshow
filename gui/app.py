@@ -35,6 +35,8 @@ logger = logging.getLogger("kburns-slideshow")
 # https://stackoverflow.com/a/44633014
 sys.path.append("..")
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
 SUNKABLE_BUTTON = "SunkableButton.TButton"
 
 
@@ -181,7 +183,7 @@ class App(tk.Tk):
         self.transition_choices = [
             package_name
             for importer, package_name, _ in pkgutil.iter_modules(
-                [os.path.join(os.getcwd(), "transitions")]
+                [os.path.join(PROJECT_ROOT, "transitions")]
             )
         ]
         self.transition_choices.append(" - None - ")
@@ -190,7 +192,7 @@ class App(tk.Tk):
         self.zoom_direction_choices_z = ["random", "none", "in", "out"]
         self.scale_mode_choices = ["auto", "pad", "pan", "crop_center"]
 
-        self.config_path = os.path.join(os.getcwd(), "config.json")
+        self.config_path = os.path.join(PROJECT_ROOT, "config.json")
         self.init()
         # create empty slideshow
         # self.createSlideshow()

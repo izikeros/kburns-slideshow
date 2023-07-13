@@ -8,6 +8,7 @@ import pkgutil
 
 logger = logging.getLogger("kburns-slideshow")
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 class CLI:
     def __init__(self, config):
@@ -52,7 +53,7 @@ class CLI:
         transition_choices = [
             package_name
             for importer, package_name, _ in pkgutil.iter_modules(
-                [os.path.join(os.getcwd(), "transitions")]
+                [os.path.join(PROJECT_ROOT, "transitions")]
             )
         ]
 
