@@ -1,3 +1,46 @@
+from io import BytesIO
+
+import pytest
+from PIL import Image, ImageDraw
+
+from slideshow.ImageSlide import ImageSlide
+
+
+@pytest.fixture(scope="module")
+def image_slide_config():
+    return {
+        "ffmpeg_version": 4,
+        "file": None,
+        "output_width": 1280,
+        "output_height": 720,
+        "duration": 5,
+        "slide_duration_min": 2,
+        "fade_duration": 1,
+        "zoom_direction_x": "random",
+        "zoom_direction_y": "random",
+        "zoom_direction_z": "random",
+        "scale_mode": "auto",
+        "zoom_rate": 0.1,
+        "fps": 60,
+        "title": None,
+        "overlay_text": None,
+        "overlay_color": None,
+        "transition": "random",
+    }
+
+
+@pytest.fixture(scope="module")
+def image_slide(image_slide_config):
+    img = Image.new("RGB", (1920, 1080), color=(73, 109, 137))
+    d = ImageDraw.Draw(img)
+    d.text((10, 10), "Hello world", fill=(255, 255, 0))
+    buffer = BytesIO()
+    img.save(buffer, "JPEG")
+    buffer.seek(0)
+    image_slide_config["file"] = buffer
+    return ImageSlide(**image_slide_config)
+
+
 class TestImageSlide:
     def test_init(self, image_slide, image_slide_config):
         assert image_slide.duration == image_slide_config["duration"]
@@ -48,10 +91,13 @@ class TestImageSlide:
         assert direction_z in ["in", "out"]
 
     def test_get_object(self, image_slide, image_slide_config):
+        # TODO: KS: 2023-07-13: Check if there is no potential bug here
+        #   the 'slide_duration' is missing in the config but expected in the
+        #   object
+        image_slide_config["slide_duration"] = image_slide_config["duration"]
+
         config = image_slide.getObject(image_slide_config)
         assert isinstance(config, dict)
-        # assert "slide_duration_min" in config
-        # assert "zoom_rate" in config
         assert "zoom_direction_x" in config
         assert "zoom_direction_y" in config
         assert "zoom_direction_z" in config
