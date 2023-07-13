@@ -194,6 +194,38 @@ class VideoSlide(Slide):
         if hasattr(subprocess, "STARTUPINFO"):
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        return subprocess.check_output(
-            command, stderr=subprocess.PIPE, stdin=subprocess.PIPE, startupinfo=si
-        ).decode()
+        try:
+            out =  subprocess.check_output(
+                command, stderr=subprocess.PIPE, stdin=subprocess.PIPE, startupinfo=si
+            ).decode()
+            return out
+        except subprocess.CalledProcessError as e:
+            # Capture the error message
+            error_output = e.output
+            print(f"Command execution failed with error: {error_output}")
+
+
+    # def subprocess_call(self, command=[]):
+    #     si = None
+    #     if hasattr(subprocess, "STARTUPINFO"):
+    #         si = subprocess.STARTUPINFO()
+    #         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    #
+    #     try:
+    #         process = subprocess.Popen(
+    #             command,
+    #             stdout=subprocess.PIPE,
+    #             stderr=subprocess.PIPE,
+    #             stdin=subprocess.PIPE,
+    #             startupinfo=si,
+    #             universal_newlines=True  # Enables text mode for input/output streams
+    #         )
+    #         out, error_output = process.communicate()
+    #
+    #         # Check if the command execution failed
+    #         if process.returncode != 0:
+    #             print(f"Command execution failed with error: {error_output}")
+    #         else:
+    #             return out
+    #     except Exception as e:
+    #         print(f"An error occurred: {e}")e
