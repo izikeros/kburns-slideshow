@@ -8,6 +8,12 @@ class AudioFile:
 
         self.file = file
 
+        # check if file exists
+        err = subprocess.check_output(["%s" % (ffprobe), "-v", "error", "-i", file])
+        if err:
+            print(err)
+            raise ValueError("File %s does not exist" % (file))
+
         duration = subprocess.check_output(
             [
                 "%s" % (ffprobe),
