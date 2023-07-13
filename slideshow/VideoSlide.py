@@ -23,18 +23,9 @@ class VideoSlide(Slide):
         video_start=None,
         video_end=None,
     ):
-        duration = self.subprocess_call(
-            [
-                "%s" % (ffprobe),
-                "-show_entries",
-                "format=duration",
-                "-v",
-                "error",
-                "-of",
-                "default=noprint_wrappers=1:nokey=1",
-                file,
-            ]
-        )
+        duration = self.get_duration_ffprobe(ffprobe, file)
+
+        # TODO: KS: 2023-07-13: this can raise an ValueError
         duration = float(duration)
 
         self.video_duration = duration
@@ -112,6 +103,21 @@ class VideoSlide(Slide):
             video_end if video_end is not None and video_end < self.duration else None
         )
         self.calculateDurationAfterTrimming()
+
+    def get_duration_ffprobe(self, ffprobe, file):
+        duration = self.subprocess_call(
+            [
+                "%s" % (ffprobe),
+                "-show_entries",
+                "format=duration",
+                "-v",
+                "error",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                file,
+            ]
+        )
+        return duration
 
     def calculateDurationAfterTrimming(self):
         if self.start is not None or self.end is not None:
