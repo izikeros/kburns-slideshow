@@ -4,6 +4,7 @@ import os
 import pkgutil
 import random
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 class Slide:
     def __init__(
@@ -108,6 +109,6 @@ class Slide:
         return [
             package_name
             for importer, package_name, _ in pkgutil.iter_modules(
-                [os.path.join(os.getcwd(), "transitions")]
+                [os.path.join(PROJECT_ROOT, "transitions")]
             )
         ]
