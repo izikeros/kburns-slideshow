@@ -4,5 +4,6 @@ data/
 transitions/*
 !transitions/fade.py
 !transitions/__init__.py
-
+.idea/
+.code
 docs/demo_video
